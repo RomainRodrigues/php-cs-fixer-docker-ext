@@ -1,0 +1,105 @@
+{
+  "name": "php-cs-fixer-docker",
+  "displayName": "PHP CS Fixer - Docker",
+  "description": "Format PHP files using PHP CS Fixer running inside Docker containers. Supports ${workspaceFolder} variables — configure once globally, works for all projects.",
+  "version": "0.1.0",
+  "publisher": "RomainRodrigues",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "php",
+    "php-cs-fixer",
+    "docker",
+    "formatter",
+    "php formatter"
+  ],
+  "activationEvents": [
+    "onLanguage:php"
+  ],
+  "main": "./out/src/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "PHP CS Fixer Docker",
+      "properties": {
+        "phpCsFixerDocker.container": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Name of the Docker container or docker-compose service to use. You can use the **Select Container** command to pick from running containers. Supports `${env:VAR}` variables.\n\nExample: `php`, `app`, `${env:APP_NAME}-php`"
+        },
+        "phpCsFixerDocker.envFile": {
+          "type": "string",
+          "default": "${workspaceFolder}/.env",
+          "markdownDescription": "Path to a `.env` file used to resolve `${env:VAR}` variables in other settings. Supports `${workspaceFolder}`.\n\nExample: `${workspaceFolder}/.env`"
+        },
+        "phpCsFixerDocker.pathMapping": {
+          "type": "string",
+          "default": "${workspaceFolder}:/var/www/html",
+          "markdownDescription": "Path mapping between your local workspace and the container path, in `host:container` format.\n\nSupports `${workspaceFolder}` and `${workspaceFolderBasename}` variables.\n\nExample: `${workspaceFolder}:/var/www/html`"
+        },
+        "phpCsFixerDocker.phpCsFixerPath": {
+          "type": "string",
+          "default": "vendor/bin/php-cs-fixer",
+          "markdownDescription": "Path to `php-cs-fixer` inside the container. Can be relative to the container path mapping, or absolute.\n\nExamples:\n- `vendor/bin/php-cs-fixer` (Composer install)\n- `/usr/local/bin/php-cs-fixer` (global install)"
+        },
+        "phpCsFixerDocker.configFile": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Name of the PHP CS Fixer config file. If empty, the extension auto-detects common filenames (`.php-cs-fixer.dist.php`, `.php-cs-fixer.php`, `.php_cs.dist`, `.php_cs`)."
+        },
+        "phpCsFixerDocker.rules": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Additional PHP CS Fixer rules in JSON format. Only used when no config file is found.\n\nExample: `{\"@PSR12\": true, \"array_syntax\": {\"syntax\": \"short\"}}`"
+        },
+        "phpCsFixerDocker.localFallback": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, falls back to a local php-cs-fixer installation when no Docker container is running."
+        },
+        "phpCsFixerDocker.localPhpCsFixerPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to the local `php-cs-fixer` binary (used for fallback). Auto-detected if empty:\n1. `${workspaceFolder}/vendor/bin/php-cs-fixer`\n2. `php-cs-fixer` in PATH"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "phpCsFixerDocker.fix",
+        "title": "PHP CS Fixer Docker: Format current file"
+      },
+      {
+        "command": "phpCsFixerDocker.selectContainer",
+        "title": "PHP CS Fixer Docker: Select Docker container"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src test --ext ts",
+    "test": "node ./out/test/runTests.js",
+    "pretest": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.5",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.56.0",
+    "mocha": "^10.3.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}

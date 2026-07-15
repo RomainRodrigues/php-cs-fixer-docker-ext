@@ -2,7 +2,7 @@
   "name": "docker-php-formatter",
   "displayName": "PHP CS Fixer - Docker",
   "description": "Format PHP files using PHP CS Fixer running inside Docker containers. Supports ${workspaceFolder} variables — configure once globally, works for all projects.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "romrd",
   "icon": "images/icon.png",
   "license": "MIT",

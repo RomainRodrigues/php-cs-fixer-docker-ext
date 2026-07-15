@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to PHP CS Fixer - Docker will be documented in this file.
+## [0.1.1] - 2026-07-15
+
+### Added
+- Documented `phpCsFixerDocker.envFile` setting for `.env` path customization.
+- Documented `${workspaceFolderBasename}` variable support for path mapping.
+
+### Changed
+- Rewrote `README.md` for a more professional and concise presentation.
 
 ## [0.1.0] - 2026-07-15
 

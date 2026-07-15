@@ -1,37 +1,13 @@
-# PHP CS Fixer - Docker
+# PHP CS Fixer Docker
 
-Format PHP files using **PHP CS Fixer running inside your Docker containers** — with no absolute paths, no wrapper scripts, and no per-project configuration required.
+A VS Code extension to format PHP files using **PHP CS Fixer running inside your Docker containers**. It requires no absolute paths, no wrapper scripts, and allows for a single global configuration across multiple projects.
 
-## The problem with existing extensions
+## Key Features
 
-Other extensions like `yejune.docker-php-cs-fixer` require you to configure absolute host paths for every project:
-
-```json
-// ❌ Every developer must set this for every project
-{
-  "docker-php-cs-fixer.hostPath": "/Users/yourname/code/project",
-  "docker-php-cs-fixer.dockerPath": "/var/www/html",
-  "docker-php-cs-fixer.executablePath": "/Users/yourname/code/project/docker-php-cs-fixer"
-}
-```
-
-This is not portable between developers and requires a manual bash script.
-
-## Our solution
-
-Configure **once globally** using `${workspaceFolder}` variables:
-
-```jsonc
-// ✅ Set this once in your global VS Code settings — works for ALL projects
-{
-  "phpCsFixerDocker.container": "php",
-  "phpCsFixerDocker.pathMapping": "${workspaceFolder}:/var/www/html"
-}
-```
-
-That's it. Open any PHP project and format away.
-
----
+- **Global Configuration**: Configure once globally using `${workspaceFolder}` variables.
+- **Smart Container Resolution**: Automatically finds the running container based on the Docker Compose service name using fuzzy matching.
+- **Environment Variables Support**: Natively supports `.env` files for dynamic container names with a customizable `.env` path.
+- **Local Fallback**: Falls back to a local `php-cs-fixer` installation if Docker is unavailable.
 
 ## Quick Start
 
@@ -63,51 +39,42 @@ Open your global `settings.json` (`Ctrl+Shift+P` → *Open User Settings (JSON)*
 
 Open a PHP file, save it, and it will be formatted automatically.
 
----
-
 ## Configuration Reference
 
 | Setting | Default | Description |
 |---|---|---|
-| `phpCsFixerDocker.container` | `""` | Docker container name or docker-compose service name |
-| `phpCsFixerDocker.pathMapping` | `"${workspaceFolder}:/var/www/html"` | `host:container` path mapping. Supports `${workspaceFolder}`. |
-| `phpCsFixerDocker.phpCsFixerPath` | `"vendor/bin/php-cs-fixer"` | Path to php-cs-fixer inside the container |
-| `phpCsFixerDocker.configFile` | `""` | Config filename (auto-detected if empty) |
-| `phpCsFixerDocker.rules` | `""` | PHP CS Fixer rules JSON (used when no config file is found) |
-| `phpCsFixerDocker.localFallback` | `true` | Fall back to a local php-cs-fixer if Docker is unavailable |
-| `phpCsFixerDocker.localPhpCsFixerPath` | `""` | Local php-cs-fixer binary path (auto-detected if empty) |
+| `phpCsFixerDocker.container` | `""` | Docker container name or docker-compose service name. Supports `${env:VAR}` variables. |
+| `phpCsFixerDocker.envFile` | `"${workspaceFolder}/.env"` | Path to the `.env` file used to resolve `${env:VAR}` variables. Supports `${workspaceFolder}`. |
+| `phpCsFixerDocker.pathMapping` | `"${workspaceFolder}:/var/www/html"` | `host:container` path mapping. Supports `${workspaceFolder}` and `${workspaceFolderBasename}`. |
+| `phpCsFixerDocker.phpCsFixerPath` | `"vendor/bin/php-cs-fixer"` | Path to php-cs-fixer inside the container. |
+| `phpCsFixerDocker.configFile` | `""` | Config filename (auto-detected if empty: `.php-cs-fixer.dist.php`, `.php-cs-fixer.php`, etc.). |
+| `phpCsFixerDocker.rules` | `""` | Additional PHP CS Fixer rules JSON (used when no config file is found). Example: `{"@PSR12": true}` |
+| `phpCsFixerDocker.localFallback` | `true` | Fall back to a local php-cs-fixer if Docker is unavailable. |
+| `phpCsFixerDocker.localPhpCsFixerPath` | `""` | Local php-cs-fixer binary path (auto-detected if empty in workspace vendor or PATH). |
 
----
+## Advanced Features
 
-## 🧠 Smart Container Resolution
+### Smart Container Resolution
 
-You do **not** need to type the exact generated name of your Docker container (e.g., `my-project-app-1`).
+You do not need to specify the exact generated name of your Docker container (e.g., `my-project-app-1`). The extension uses smart fuzzy matching. Provide the Docker Compose service name (like `php`, `app`, or `laravel.test`), and the extension will automatically find the running container that matches it. This enables you to share the exact same VS Code settings across multiple projects.
 
-The extension uses **smart fuzzy matching**. You can simply provide the **Docker Compose service name** (like `php` or `app` or `laravel.test`), and the extension will automatically find the running container that matches it.
+### Environment Variables (.env)
 
-This allows you to share the exact same VS Code settings across multiple projects without worrying about the final container name!
+The extension natively supports `.env` files, which is extremely useful for global configuration. You can use any variable from your `.env` file in your settings using the `${env:VARIABLE_NAME}` syntax.
 
----
-
-## 🌍 Environment Variables (.env)
-
-The extension natively supports `.env` files. This is extremely powerful for global configuration.
-
-By default, the extension loads the `.env` file at the root of your workspace (`${workspaceFolder}/.env`). You can use any variable from this file in your settings using the `${env:VARIABLE_NAME}` syntax.
+By default, the extension loads the `.env` file at the root of your workspace (`${workspaceFolder}/.env`). You can customize this path using the `phpCsFixerDocker.envFile` setting.
 
 **Example with Laravel Sail:**
-Your `.env` contains `APP_NAME=my-app`. Laravel Sail generates a container named `my-app-laravel.test-1`.
 
-You can configure your global settings like this:
+If your `.env` contains `APP_NAME=my-app`, Laravel Sail generates a container named `my-app-laravel.test-1`. You can configure your global settings as follows:
+
 ```jsonc
 {
   "phpCsFixerDocker.container": "${env:APP_NAME}-laravel.test",
   "phpCsFixerDocker.pathMapping": "${workspaceFolder}:/var/www/html"
 }
 ```
-*Note: If the variable is not found in the `.env` file, the extension will fall back to your system's global environment variables.*
-
----
+*(If the variable is not found in the configured `.env` file, the extension falls back to your system's global environment variables.)*
 
 ## Examples
 
@@ -150,7 +117,7 @@ services:
 }
 ```
 
-### php-cs-fixer installed globally in the container
+### Global php-cs-fixer in container
 
 ```jsonc
 {
@@ -162,7 +129,7 @@ services:
 
 ### Per-project override
 
-If one project uses a different container path, add a `.vscode/settings.json` to that project:
+To use a different container path for a specific project, create a `.vscode/settings.json` file in that project:
 
 ```jsonc
 // .vscode/settings.json — overrides global for this project only
@@ -171,8 +138,6 @@ If one project uses a different container path, add a `.vscode/settings.json` to
 }
 ```
 
----
-
 ## Commands
 
 | Command | Description |
@@ -180,18 +145,14 @@ If one project uses a different container path, add a `.vscode/settings.json` to
 | `PHP CS Fixer Docker: Format current file` | Format the active PHP file |
 | `PHP CS Fixer Docker: Select Docker container` | Pick a running container from a list and save it to settings |
 
----
-
 ## Config file auto-detection
 
 If `phpCsFixerDocker.configFile` is empty, the extension searches for these files in your workspace root (in order):
 
-1. `.php-cs-fixer.dist.php` ← most common (Symfony, Laravel)
+1. `.php-cs-fixer.dist.php`
 2. `.php-cs-fixer.php`
-3. `.php_cs.dist` ← older PHP CS Fixer v2 format
+3. `.php_cs.dist`
 4. `.php_cs`
-
----
 
 ## Status Bar
 
@@ -203,25 +164,13 @@ The extension shows its active mode in the status bar (bottom right):
 
 Click the status bar item to open the container picker.
 
----
-
 ## Troubleshooting
 
-**"No running Docker container found"**
-→ Make sure your container is running (`docker ps`). Use the **Select Container** command to pick the correct one.
-
-**Formatting is slow**
-→ The first format (cold start) resolves the container ID and takes ~800ms. Subsequent saves should be ~300–500ms.
-
-**"php-cs-fixer returned empty output"**
-→ Check that `phpCsFixerDocker.phpCsFixerPath` points to a valid binary inside the container.
-→ Run `docker exec -it <container> php vendor/bin/php-cs-fixer --version` to verify.
-
-**Config file not detected**
-→ Set `phpCsFixerDocker.configFile` to the exact filename (e.g. `.php-cs-fixer.dist.php`).
-
----
+- **"No running Docker container found"**: Ensure your container is running (`docker ps`). Use the **Select Container** command to pick the correct one.
+- **Formatting is slow**: The first format (cold start) resolves the container ID and takes ~800ms. Subsequent saves should take ~300–500ms.
+- **"php-cs-fixer returned empty output"**: Verify that `phpCsFixerDocker.phpCsFixerPath` points to a valid binary inside the container. Run `docker exec -it <container> php vendor/bin/php-cs-fixer --version` to check.
+- **Config file not detected**: Set `phpCsFixerDocker.configFile` to the exact filename (e.g. `.php-cs-fixer.dist.php`).
 
 ## License
 
-MIT
+[MIT](LICENSE)

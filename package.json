@@ -3,8 +3,16 @@
   "displayName": "PHP CS Fixer - Docker",
   "description": "Format PHP files using PHP CS Fixer running inside Docker containers. Supports ${workspaceFolder} variables — configure once globally, works for all projects.",
   "version": "0.1.0",
-  "publisher": "RomainRodrigues",
+  "publisher": "romainrodrigues",
+  "icon": "images/icon.png",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RomainRodrigues/php-cs-fixer-docker-ext"
+  },
+  "bugs": {
+    "url": "https://github.com/RomainRodrigues/php-cs-fixer-docker-ext/issues"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
